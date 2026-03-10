@@ -20,13 +20,20 @@ class LZWCoding:
    # ---------------------------------------------------------------------------
    def compress_text_file(self):
       # get the current directory where this program is placed
-      current_directory = os.path.dirname(os.path.realpath(__file__))
-      # build the path of the input file
-      input_file = self.filename + '.txt'
-      input_path = current_directory + '/' + input_file
-      # build the path of the output file
-      output_file = self.filename + '_compressed.bin'
-      output_path = current_directory + '/' + output_file
+      if os.path.isabs(self.filename) or os.sep in self.filename or '/' in self.filename:
+         # Full path given (e.g. from GUI file dialog)
+         input_path = self.filename
+         base = os.path.splitext(self.filename)[0]   # strip extension if any
+         input_file = os.path.basename(input_path)
+         output_file = os.path.basename(base) + '_compressed.bin'
+         output_path = base + '_compressed.bin'
+      else:
+         # Plain filename given (e.g. from __main__ block)
+         current_directory = os.path.dirname(os.path.realpath(__file__))
+         input_file = self.filename + '.txt'
+         input_path = os.path.join(current_directory, input_file)
+         output_file = self.filename + '_compressed.bin'
+         output_path = os.path.join(current_directory, output_file)
 
       # read the contents of the input file
       in_file = open(input_path, 'r')
@@ -177,13 +184,20 @@ class LZWCoding:
    # ---------------------------------------------------------------------------
    def decompress_text_file(self):
       # get the current directory where this program is placed
-      current_directory = os.path.dirname(os.path.realpath(__file__))
-      # build the path of the input file
-      input_file = self.filename + '_compressed.bin'
-      input_path = current_directory + '/' + input_file
-      # build the path of the output file
-      output_file = self.filename + '_decompressed.txt'
-      output_path = current_directory + '/' + output_file
+      if os.path.isabs(self.filename) or os.sep in self.filename or '/' in self.filename:
+         # Full path given (e.g. from GUI file dialog)
+         base = os.path.splitext(self.filename)[0]   # strip extension if any
+         input_file = os.path.basename(base) + '_compressed.bin'
+         input_path = base + '_compressed.bin'
+         output_file = os.path.basename(base) + '_decompressed.txt'
+         output_path = base + '_decompressed.txt'
+      else:
+         # Plain filename given (e.g. from __main__ block)
+         current_directory = os.path.dirname(os.path.realpath(__file__))
+         input_file = self.filename + '_compressed.bin'
+         input_path = os.path.join(current_directory, input_file)
+         output_file = self.filename + '_decompressed.txt'
+         output_path = os.path.join(current_directory, output_file)
 
       # read the contents of the input file
       in_file = open(input_path, 'rb')   # binary mode
