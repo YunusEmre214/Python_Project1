@@ -95,10 +95,13 @@ def main():
     print(f"Image Size: {width}x{height}")
     print("Level 4 Color Compression starting...")
 
+    compressed_all_channels = []
+
     #Process each color channel individually
     for i, channel_pixels in enumerate(channels):
         
         compressed = lzw_compress(channel_pixels)
+        compressed_all_channels.append(compressed)
         
         # Calculate performance metrics per channel
         ent, avg_l, ratio, c_size = calculate_metrics(channel_pixels, compressed)
@@ -116,6 +119,22 @@ def main():
         decompressed = lzw_decompress(compressed)
         processed_channels.append(np.array(decompressed).reshape((height, width)))
 
+    # SAVE COMPRESSED FILE (.bin)   
+    bin_path = os.path.join(current_dir, "color_compressed.bin")
+
+    with open(bin_path, "wb") as f:
+        # Save dimensions first
+        f.write(width.to_bytes(4, 'big'))
+        f.write(height.to_bytes(4, 'big'))
+
+        # Save each channel separately
+        for compressed in compressed_all_channels:
+            f.write(len(compressed).to_bytes(4, 'big'))  # length of channel
+            for code in compressed:
+                f.write(code.to_bytes(4, 'big'))
+
+    print(f"Compressed color file saved: color_compressed.bin")
+    
     #  Level 4: Recombine R, G, B channels
     final_r = processed_channels[0].astype(np.uint8)
     final_g = processed_channels[1].astype(np.uint8)
@@ -136,6 +155,7 @@ def main():
     # Save and Final Verification
     save_path = os.path.join(current_dir, output_file_name)
     restored_img.save(save_path)
+    
     print(f"Restored color image saved as: {output_file_name}")
 
     if np.array_equal(np.array(img), np.array(restored_img)):
