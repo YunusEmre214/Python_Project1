@@ -88,6 +88,7 @@ class MainWindow(QMainWindow):
         if method == "Level 1" and file_ext == ".txt":
             lzw = LZW.LZWCoding(self.selected_file, "text")
             output_path = lzw.compress_text_file()
+            self.compressed_data_path = output_path
             
             # Read the file contents and calculate character probabilities.
             with open(self.selected_file, 'r', encoding='utf-8') as f:
@@ -190,6 +191,7 @@ class MainWindow(QMainWindow):
             lzw = LZW.LZWCoding(self.selected_file, "text")
             res_path = lzw.decompress_text_file()
             self.label_info.setText(self.label_info.text() + f"\n\nRestored: {os.path.basename(res_path)}")
+            self.label_image2.setText("Text Decompressed Successfully")
             return
 
         #  BINARY READ
