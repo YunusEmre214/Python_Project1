@@ -114,6 +114,8 @@ def main():
     total_comp_size = 0
     total_entropy = 0
 
+    compressed_all = []
+
     print(f"Image Size: {width}x{height}")
     print("Level 5 Color Compression starting...")
 
@@ -124,6 +126,7 @@ def main():
         diff_list = diff_arr.flatten().tolist()
 
         compressed = lzw_compress(diff_list)
+        compressed_all.append(compressed)
         
         ent, avg_l, ratio, c_size = calculate_metrics(diff_list, compressed)
         total_entropy += ent
@@ -139,6 +142,22 @@ def main():
         decompressed = lzw_decompress(compressed)
         restored_channel = restore_from_difference(np.array(decompressed).reshape((height, width)))
         processed_channels.append(restored_channel)
+
+    # SAVE COMPRESSED FILE (.bin)
+    bin_path = os.path.join(current_dir, "color_level5_compressed.bin")
+
+    with open(bin_path, "wb") as f:
+        # Save image dimensions
+        f.write(width.to_bytes(4, 'big'))
+        f.write(height.to_bytes(4, 'big'))
+
+        # Save each channel
+        for compressed in compressed_all:
+            f.write(len(compressed).to_bytes(4, 'big'))
+            for code in compressed:
+                f.write(code.to_bytes(4, 'big'))
+
+    print(f"Compressed Level 5 file saved: color_level5_compressed.bin")
 
     # 4. Recombine R, G, B channels into a single color image
     final_r = processed_channels[0]
