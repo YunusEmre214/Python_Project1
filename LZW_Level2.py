@@ -81,6 +81,7 @@ def main():
     
     base_name, extension = os.path.splitext(image_name)
     output_file_name = f"{base_name}_restored{extension}"
+    bin_name = f"{base_name}.bin"
 
     img = Image.open(image_path).convert('L') # Convert to Grayscale
     width, height = img.size
@@ -91,6 +92,14 @@ def main():
 
     # 2. Direct LZW Compression (No Difference Imaging)
     compressed_data = lzw_compress(original_pixels)
+
+    # Save compressed data to .bin file
+    bin_path = os.path.join(base_path, bin_name)
+    with open(bin_path, "wb") as f:
+        for code in compressed_data:
+            f.write(code.to_bytes(4, byteorder="big"))  # 4 bytes per code
+
+    print(f"Compressed file saved as: {bin_name}")
     
     # 3. Performance Metrics
     entropy, avg_len, ratio, comp_size = calculate_metrics(original_pixels, compressed_data)
