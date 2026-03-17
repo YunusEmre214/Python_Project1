@@ -120,11 +120,13 @@ def main():
     print(f"Compressed File Size (est): {comp_size / 8:.2f} bytes")
     print("-" * 30)
 
-    compressed_file_path = os.path.join(current_dir, "compressed_data.lzw")
-    #Save binary compressed file
-    with open(compressed_file_path, "wb") as f:
-        pickle.dump(compressed_data, f)
-    print(f"Compressed data saved: {compressed_file_path}")
+   compressed_file_path_bin = os.path.join(current_dir, "compressed_data.bin")
+
+    with open(compressed_file_path_bin, "wb") as f:
+        for code in compressed_data:
+            f.write(code.to_bytes(4, byteorder="big"))  # 4 bytes per code
+
+    print(f"Compressed data saved (binary): {compressed_file_path_bin}")
 
     print("Decompression is starting...")
 
@@ -135,8 +137,10 @@ def main():
 
     restored_img=Image.new("L",(width,height))
     restored_img.putdata(final_pixels.flatten().tolist())
+
     save_path = os.path.join(current_dir, output_file_name)
     restored_img.save(save_path)
+
     print(f"Restored image saved as: {output_file_name}")
 
     if list(img.getdata())==final_pixels.flatten().tolist():
